@@ -11,6 +11,10 @@ export const TIMEFRAME_MS: Record<ChartTimeframe, number> = {
   "1d": 86_400_000,
 };
 
+export function isChartTimeframe(value: string): value is ChartTimeframe {
+  return Object.hasOwn(TIMEFRAME_MS, value);
+}
+
 export function isIntraday(timeframe: ChartTimeframe): boolean {
   return INTRADAY_TIMEFRAMES.includes(timeframe);
 }

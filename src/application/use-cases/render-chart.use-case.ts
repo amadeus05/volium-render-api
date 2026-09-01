@@ -18,8 +18,12 @@ export class RenderChartUseCase {
 
   async execute(request: RenderChartRequest): Promise<RenderChartResponse> {
     const candles = request.candles.map((candle) => Candle.from(candle));
-    const boxes = this.sessions.detect(candles, VoliumSessions.all(), request.timeframe);
-    const sweeps = this.sweeps.detect(candles, boxes, VoliumSweeps.default());
+    const drawSessions = request.layers?.sessions === true;
+    const drawSweeps = drawSessions && request.layers?.sweeps === true;
+    const boxes = drawSessions
+      ? this.sessions.detect(candles, VoliumSessions.all(), request.timeframe)
+      : [];
+    const sweeps = drawSweeps ? this.sweeps.detect(candles, boxes, VoliumSweeps.default()) : [];
     const chart = Chart.compose(
       request.requestId,
       request.title ?? request.symbol,
