@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+!.env.example
+node_modules
+output
+data
+*.png
+*.log
+.DS_Store
+Thumbs.db
