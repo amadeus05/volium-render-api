@@ -88,6 +88,23 @@ export class ChartLayout {
     return this.plotX + index * this.slot;
   }
 
+  indexOf(openTime: number): number {
+    return this.candles.findIndex((candle) => candle.openTime === openTime);
+  }
+
+  barLeft(openTime: number): number {
+    const index = this.indexOf(openTime);
+    return index < 0 ? this.xAt(openTime) : this.candleLeft(index);
+  }
+
+  barRight(openTime: number): number {
+    return this.barLeft(openTime) + this.slot;
+  }
+
+  barCenter(openTime: number): number {
+    return this.barLeft(openTime) + this.slot * 0.5;
+  }
+
   priceTicks(minSpacingPx = 24): number[] {
     const range = this.maxPrice - this.minPrice;
     if (range <= 0) {

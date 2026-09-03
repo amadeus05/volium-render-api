@@ -3,6 +3,7 @@ export class SessionBox {
     public readonly title: string,
     public readonly color: string,
     public readonly winStart: number,
+    public readonly firstBarTime: number,
     public readonly lastBarTime: number,
     public readonly high: number,
     public readonly low: number,

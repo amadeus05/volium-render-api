@@ -81,8 +81,8 @@ export class CanvasChartPainter implements ChartPainterPort {
   ): void {
     ctx.font = `600 15px ${FONT}`;
     for (const box of chart.sessionBoxes) {
-      const x1 = snap(layout.xAt(box.winStart));
-      const x2 = snap(layout.xAt(box.lastBarTime) + layout.slot);
+      const x1 = snap(layout.barLeft(box.firstBarTime));
+      const x2 = snap(layout.barRight(box.lastBarTime));
       const y1 = snap(layout.yAt(box.high));
       const y2 = snap(layout.yAt(box.low));
       const w = Math.max(1, x2 - x1);
@@ -111,8 +111,8 @@ export class CanvasChartPainter implements ChartPainterPort {
     snap: (value: number) => number,
   ): void {
     for (const sweep of chart.liquiditySweeps) {
-      const x1 = snap(layout.xAt(sweep.fromBarTime) + layout.slot * 0.5);
-      const x2 = snap(layout.xAt(sweep.sweepBarTime) + layout.slot * 0.5);
+      const x1 = snap(layout.barCenter(sweep.fromBarTime));
+      const x2 = snap(layout.barCenter(sweep.sweepBarTime));
       const y = snap(layout.yAt(sweep.level));
       if (x2 - x1 < 10) {
         continue;

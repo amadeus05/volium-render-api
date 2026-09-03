@@ -29,6 +29,7 @@ export class DetectSessionBoxes {
     const boxes: SessionBox[] = [];
     let live = false;
     let winStart = Number.NaN;
+    let firstBarTime = 0;
     let hi = 0;
     let lo = 0;
     let highTime = 0;
@@ -37,7 +38,17 @@ export class DetectSessionBoxes {
 
     const commit = (): void => {
       boxes.push(
-        new SessionBox(spec.title, spec.color, winStart, lastBarTime, hi, lo, highTime, lowTime),
+        new SessionBox(
+          spec.title,
+          spec.color,
+          winStart,
+          firstBarTime,
+          lastBarTime,
+          hi,
+          lo,
+          highTime,
+          lowTime,
+        ),
       );
     };
 
@@ -71,6 +82,7 @@ export class DetectSessionBoxes {
 
           live = true;
           winStart = start;
+          firstBarTime = t;
           hi = candle.high;
           lo = candle.low;
           highTime = t;
