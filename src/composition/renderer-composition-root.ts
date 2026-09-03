@@ -7,11 +7,13 @@ import { DetectLiquiditySweeps } from "../domain/session/detect-liquidity-sweeps
 import { DetectSessionBoxes } from "../domain/session/detect-session-boxes.ts";
 import { RenderChartUseCase } from "../application/use-cases/render-chart.use-case.ts";
 import { RenderChartController } from "../presentation/http/render-chart.controller.ts";
+import { KlinesController } from "../presentation/http/klines.controller.ts";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
 export class RendererCompositionRoot {
   readonly controller: RenderChartController;
+  readonly klines: KlinesController;
   readonly chartsDir: string;
 
   constructor(secret: string, publicBaseUrl: string) {
@@ -24,5 +26,6 @@ export class RendererCompositionRoot {
     );
 
     this.controller = new RenderChartController(useCase, secret);
+    this.klines = new KlinesController(secret);
   }
 }

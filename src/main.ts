@@ -24,6 +24,11 @@ const server = createServer((req, res) => {
     return;
   }
 
+  if (req.method === "GET" && pathname === "/klines") {
+    void app.klines.handle(req, res);
+    return;
+  }
+
   if (req.method === "GET" && pathname.startsWith("/charts/")) {
     const fileName = path.basename(pathname);
     const filePath = path.join(app.chartsDir, fileName);
