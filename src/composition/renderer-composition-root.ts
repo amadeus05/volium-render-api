@@ -7,9 +7,11 @@ import { DetectLiquiditySweeps } from "../domain/session/detect-liquidity-sweeps
 import { DetectSessionBoxes } from "../domain/session/detect-session-boxes.ts";
 import { SessionNotices } from "../domain/session/session-notices.ts";
 import { RenderChartUseCase } from "../application/use-cases/render-chart.use-case.ts";
+import { ListSessionEventsUseCase } from "../application/use-cases/list-session-events.use-case.ts";
 import { RenderChartController } from "../presentation/http/render-chart.controller.ts";
 import { EventsController } from "../presentation/http/events.controller.ts";
 import { KlinesController } from "../presentation/http/klines.controller.ts";
+import { klineFeed } from "../infrastructure/market-data/kline-feed.ts";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -31,6 +33,11 @@ export class RendererCompositionRoot {
 
     this.controller = new RenderChartController(useCase, secret);
     this.klines = new KlinesController(secret);
-    this.events = new EventsController(secret, new SessionNotices(clock));
+    this.events = new EventsController(
+      secret,
+      new ListSessionEventsUseCase(new SessionNotices(clock), useCase, (exchange, symbol, timeframe, limit) =>
+        klineFeed(exchange).load(symbol, timeframe, limit),
+      ),
+    );
   }
 }

@@ -1,4 +1,3 @@
-import type { CandleDto } from "./render-chart.ts";
 import type { ChartTimeframe } from "./timeframe.ts";
 
 export type SessionNoticeKind = "open" | "close" | "liquidity";
@@ -13,6 +12,6 @@ export type SessionEventsResponse = {
   exchange: string;
   symbol: string;
   timeframe: ChartTimeframe;
-  candles: CandleDto[];
   notices: SessionNoticeDto[];
+  imageUrl: string | null;
 };
