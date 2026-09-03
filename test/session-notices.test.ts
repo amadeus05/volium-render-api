@@ -7,7 +7,7 @@ import { LuxonSessionClock } from "../src/infrastructure/time/luxon-session.cloc
 
 const notices = new SessionNotices(new LuxonSessionClock());
 
-test("лето: London открылась в 07:00 UTC и закрылась в 11:00", () => {
+test("лето: London открылась в 07:00 UTC и закрылась в 15:30 UTC", () => {
   const open = notices.list("BTCUSDT", [], utc("2026-09-02T07:00:00Z"));
   assert.deepEqual(
     open.map((item) => item.text),
@@ -15,22 +15,20 @@ test("лето: London открылась в 07:00 UTC и закрылась в 
   );
   assert.equal(open[0]?.kind, "open");
 
-  const stillOpen = notices.list("BTCUSDT", [], utc("2026-09-02T10:59:59Z"));
+  const stillOpen = notices.list("BTCUSDT", [], utc("2026-09-02T15:29:59Z"));
   assert.equal(stillOpen.some((item) => item.text === "London открылась"), true);
   assert.equal(stillOpen.some((item) => item.text.includes("закрылась")), false);
 
-  const closed = notices.list("BTCUSDT", [], utc("2026-09-02T11:00:00Z"));
-  assert.deepEqual(
-    closed.map((item) => item.text),
-    ["London закрылась"],
-  );
-  assert.equal(closed[0]?.kind, "close");
+  const closed = notices.list("BTCUSDT", [], utc("2026-09-02T15:30:00Z"));
+  assert.equal(closed.some((item) => item.text === "London закрылась"), true);
+  assert.equal(closed.some((item) => item.text === "New York открылась"), true);
 });
 
-test("лето: New York открылась в 13:30 UTC", () => {
+test("лето: New York открылась в 13:30 UTC, London ещё открыта", () => {
   const listed = notices.list("BTCUSDT", [], utc("2026-09-02T13:30:00Z"));
   assert.equal(listed.some((item) => item.text === "New York открылась"), true);
-  assert.equal(listed.some((item) => item.text === "London закрылась"), true);
+  assert.equal(listed.some((item) => item.text === "London открылась"), true);
+  assert.equal(listed.some((item) => item.text.includes("закрылась")), false);
 });
 
 test("зима: London 08:00 UTC, New York 14:30 UTC", () => {

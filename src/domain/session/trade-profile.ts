@@ -18,8 +18,8 @@ export class TradeProfile {
         timeZone: "Europe/London",
         startHour: 8,
         startMinute: 0,
-        endHour: 12,
-        endMinute: 0,
+        endHour: 16,
+        endMinute: 30,
         color: "#7dcc90",
       }),
       SessionSpec.define({
@@ -28,8 +28,8 @@ export class TradeProfile {
         timeZone: "America/New_York",
         startHour: 9,
         startMinute: 30,
-        endHour: 11,
-        endMinute: 30,
+        endHour: 16,
+        endMinute: 0,
         color: "#7eb6e8",
       }),
     ]);
