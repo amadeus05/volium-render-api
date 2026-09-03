@@ -45,4 +45,8 @@ export class VoliumSessions {
       }),
     ];
   }
+
+  static chartBoxes(): SessionSpec[] {
+    return VoliumSessions.all().filter((spec) => spec.title !== "pre-London");
+  }
 }

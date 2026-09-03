@@ -10,3 +10,14 @@ export class LiquiditySweep {
     public readonly sweepBarTime: number,
   ) {}
 }
+
+export function sessionSweepNotice(sweep: LiquiditySweep): string {
+  const kind = sweep.side === "high" ? "BSL" : "SSL";
+  const edge = sweep.side === "high" ? "хай" : "лой";
+  const when = new Date(sweep.sweepBarTime).toISOString().slice(0, 16);
+  return [
+    "Снятие сессионной ликвидности",
+    `${kind} · ${sweep.fromSession} → ${sweep.toSession}`,
+    `снят ${edge} ${sweep.level} на ${when} UTC`,
+  ].join("\n");
+}

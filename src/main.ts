@@ -29,6 +29,11 @@ const server = createServer((req, res) => {
     return;
   }
 
+  if (req.method === "GET" && pathname === "/events") {
+    void app.events.handle(req, res);
+    return;
+  }
+
   if (req.method === "GET" && pathname.startsWith("/charts/")) {
     const fileName = path.basename(pathname);
     const filePath = path.join(app.chartsDir, fileName);

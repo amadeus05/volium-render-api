@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "start": "node --import tsx src/main.ts",
-    "test": "node --import tsx --test test/klines.test.ts"
+    "test": "node --import tsx --test test/klines.test.ts test/session-notices.test.ts test/events.test.ts"
   },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.80",
