@@ -1,4 +1,5 @@
-import { SessionSpec } from "./session-spec.ts";
+import type { SessionSpec } from "./session-spec.ts";
+import { VoliumSessions } from "./volium-sessions.ts";
 
 export class TradeProfile {
   private constructor(private readonly windows: readonly SessionSpec[]) {}
@@ -11,28 +12,7 @@ export class TradeProfile {
   }
 
   static btc(): TradeProfile {
-    return new TradeProfile([
-      SessionSpec.define({
-        enabled: true,
-        title: "London",
-        timeZone: "Europe/London",
-        startHour: 8,
-        startMinute: 0,
-        endHour: 16,
-        endMinute: 30,
-        color: "#7dcc90",
-      }),
-      SessionSpec.define({
-        enabled: true,
-        title: "New York",
-        timeZone: "America/New_York",
-        startHour: 9,
-        startMinute: 30,
-        endHour: 16,
-        endMinute: 0,
-        color: "#7eb6e8",
-      }),
-    ]);
+    return new TradeProfile([VoliumSessions.london(), VoliumSessions.newYork()]);
   }
 
   get sessionWindows(): readonly SessionSpec[] {
