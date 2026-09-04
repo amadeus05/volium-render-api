@@ -1,5 +1,6 @@
 import type { CandleDto, ChartTimeframe, SessionNoticeDto } from "@volium/contracts";
 import { Candle } from "../chart/candle.ts";
+import { DetectInternalSweeps } from "./detect-internal-sweeps.ts";
 import { DetectLiquiditySweeps } from "./detect-liquidity-sweeps.ts";
 import { DetectSessionBoxes } from "./detect-session-boxes.ts";
 import { sessionSweepNotice } from "./liquidity-sweep.ts";
@@ -14,6 +15,7 @@ export const SESSION_SWEEP_LOOKBACK_MS = SESSION_CLOSE_GRACE_MS;
 export class SessionNotices {
   private readonly boxes: DetectSessionBoxes;
   private readonly sweeps = new DetectLiquiditySweeps();
+  private readonly internal = new DetectInternalSweeps();
 
   constructor(private readonly clock: SessionClock) {
     this.boxes = new DetectSessionBoxes(clock);
@@ -50,17 +52,20 @@ export class SessionNotices {
 
     const since = nowUtcMs - SESSION_SWEEP_LOOKBACK_MS;
     const candles = hourly.map((candle) => Candle.from(candle));
-    const found = this.sweeps.detect(
-      candles,
-      this.boxes.detect(candles, VoliumSessions.chartBoxes(), timeframe),
-      VoliumSweeps.default(),
-    );
+    const sessionBoxes = this.boxes.detect(candles, VoliumSessions.chartBoxes(), timeframe);
+    const found = [
+      ...this.sweeps.detect(candles, sessionBoxes, VoliumSweeps.default()),
+      ...this.internal.detect(candles, sessionBoxes, timeframe),
+    ];
     for (const sweep of found) {
       if (sweep.sweepBarTime <= since) {
         continue;
       }
       notices.push({
-        id: `session-liquidity:${symbol}:${sweep.fromBarTime}:${sweep.side}`,
+        id:
+          sweep.pool === "internal"
+            ? `session-liquidity:internal:${symbol}:${sweep.fromBarTime}:${sweep.side}`
+            : `session-liquidity:${symbol}:${sweep.fromBarTime}:${sweep.side}`,
         text: sessionSweepNotice(sweep),
         kind: "liquidity",
       });

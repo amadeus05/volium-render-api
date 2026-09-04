@@ -8,5 +8,6 @@ export { SweepTouch, SweepSide } from "./sweep-touch.ts";
 export { LiquiditySweep, sessionSweepNotice } from "./liquidity-sweep.ts";
 export { VoliumSweeps } from "./volium-sweeps.ts";
 export { DetectLiquiditySweeps } from "./detect-liquidity-sweeps.ts";
+export { DetectInternalSweeps } from "./detect-internal-sweeps.ts";
 export { TradeProfile } from "./trade-profile.ts";
 export { SessionNotices } from "./session-notices.ts";

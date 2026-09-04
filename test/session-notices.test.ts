@@ -65,6 +65,24 @@ test("снятие хая Азии лондоном висит 6 часов по
   assert.equal(expired.some((item) => item.kind === "liquidity"), false);
 });
 
+test("внутренняя SSL уходит отдельным notice", () => {
+  const candles = hours("2026-09-02", {
+    "01:00": { high: 79800, low: 79000 },
+    "02:00": { high: 79700, low: 78500 },
+    "03:00": { high: 79600, low: 78600 },
+    "04:00": { high: 79500, low: 78700 },
+    "05:00": { high: 79400, low: 78800 },
+    "06:00": { high: 79300, low: 78750 },
+    "07:00": { high: 79350, low: 78700 },
+    "08:00": { high: 79200, low: 78400 },
+  });
+  const listed = notices.list("BTCUSDT", candles, utc("2026-09-02T08:05:00Z"));
+  const inner = listed.find((item) => item.text.startsWith("Снятие внутренней ликвидности"));
+  assert.equal(inner?.kind, "liquidity");
+  assert.match(inner?.text ?? "", /SSL · Tokyo → London/);
+  assert.match(inner?.id ?? "", /^session-liquidity:internal:BTCUSDT:/);
+});
+
 function hours(day: string, overlay: Record<string, Partial<CandleDto>> = {}): CandleDto[] {
   const candles: CandleDto[] = [];
   for (let hour = 0; hour < 20; hour += 1) {
