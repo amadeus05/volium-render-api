@@ -1,5 +1,5 @@
 import type { SessionSpec } from "./session-spec.ts";
-import { VoliumSessions } from "./volium-sessions.ts";
+import { SessionHours } from "./session-hours.ts";
 
 export class TradeProfile {
   private constructor(private readonly windows: readonly SessionSpec[]) {}
@@ -12,7 +12,7 @@ export class TradeProfile {
   }
 
   static btc(): TradeProfile {
-    return new TradeProfile([VoliumSessions.london(), VoliumSessions.newYork()]);
+    return new TradeProfile([SessionHours.london(), SessionHours.newYork()]);
   }
 
   get sessionWindows(): readonly SessionSpec[] {

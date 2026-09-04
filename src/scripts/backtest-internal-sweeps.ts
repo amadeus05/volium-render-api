@@ -10,8 +10,8 @@ import { DetectInternalSweeps } from "../domain/session/detect-internal-sweeps.t
 import { DetectLiquiditySweeps } from "../domain/session/detect-liquidity-sweeps.ts";
 import { DetectSessionBoxes } from "../domain/session/detect-session-boxes.ts";
 import type { LiquiditySweep } from "../domain/session/liquidity-sweep.ts";
-import { VoliumSessions } from "../domain/session/volium-sessions.ts";
-import { VoliumSweeps } from "../domain/session/volium-sweeps.ts";
+import { SessionHours } from "../domain/session/session-hours.ts";
+import { SweepRules } from "../domain/session/sweep-rules.ts";
 import { CanvasChartPainter } from "../infrastructure/canvas/canvas-chart.painter.ts";
 import { LuxonSessionClock } from "../infrastructure/time/luxon-session.clock.ts";
 
@@ -28,9 +28,9 @@ const sessionSweeps = new DetectLiquiditySweeps();
 const internal = new DetectInternalSweeps();
 
 const candles = await loadHourly("BTCUSDT", DateTime.utc().minus({ months: 3 }), DateTime.utc());
-const sessionBoxes = boxes.detect(candles, VoliumSessions.all(), "1h");
+const sessionBoxes = boxes.detect(candles, SessionHours.all(), "1h");
 const sweeps: LiquiditySweep[] = [
-  ...sessionSweeps.detect(candles, sessionBoxes, VoliumSweeps.default()),
+  ...sessionSweeps.detect(candles, sessionBoxes, SweepRules.default()),
   ...internal.detect(candles, sessionBoxes, "1h"),
 ];
 
@@ -46,7 +46,7 @@ for (const takeTime of takeTimes) {
   const visible = sweeps.filter(
     (sweep) => sweep.fromBarTime >= first.openTime && sweep.sweepBarTime <= takeTime,
   );
-  const chartBoxes = boxes.detect(view, VoliumSessions.all(), "1h");
+  const chartBoxes = boxes.detect(view, SessionHours.all(), "1h");
   const stamp = DateTime.fromMillis(takeTime, { zone: "utc" }).toFormat("yyyy-MM-dd_HH-mm");
   const id = `internal-1h_${stamp}`;
   const chart = Chart.compose(

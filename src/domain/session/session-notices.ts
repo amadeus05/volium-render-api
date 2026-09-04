@@ -6,8 +6,8 @@ import { DetectSessionBoxes } from "./detect-session-boxes.ts";
 import { sessionSweepNotice } from "./liquidity-sweep.ts";
 import type { SessionClock } from "./session-clock.ts";
 import { TradeProfile } from "./trade-profile.ts";
-import { VoliumSessions } from "./volium-sessions.ts";
-import { VoliumSweeps } from "./volium-sweeps.ts";
+import { SessionHours } from "./session-hours.ts";
+import { SweepRules } from "./sweep-rules.ts";
 
 export const SESSION_CLOSE_GRACE_MS = 6 * 60 * 60 * 1000;
 export const SESSION_SWEEP_LOOKBACK_MS = SESSION_CLOSE_GRACE_MS;
@@ -52,9 +52,9 @@ export class SessionNotices {
 
     const since = nowUtcMs - SESSION_SWEEP_LOOKBACK_MS;
     const candles = hourly.map((candle) => Candle.from(candle));
-    const sessionBoxes = this.boxes.detect(candles, VoliumSessions.chartBoxes(), timeframe);
+    const sessionBoxes = this.boxes.detect(candles, SessionHours.chartBoxes(), timeframe);
     const found = [
-      ...this.sweeps.detect(candles, sessionBoxes, VoliumSweeps.default()),
+      ...this.sweeps.detect(candles, sessionBoxes, SweepRules.default()),
       ...this.internal.detect(candles, sessionBoxes, timeframe),
     ];
     for (const sweep of found) {

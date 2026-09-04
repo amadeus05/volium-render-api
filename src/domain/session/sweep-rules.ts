@@ -1,7 +1,7 @@
 import { SweepRoute } from "./sweep-route.ts";
 import { SweepTouch } from "./sweep-touch.ts";
 
-export class VoliumSweeps {
+export class SweepRules {
   static default(): SweepRoute[] {
     return [
       // .to(A, B) — кто первый снял уровень, тот и отмечается. Не два маркера подряд.

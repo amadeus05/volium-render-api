@@ -7,7 +7,7 @@ import { Candle } from "../domain/chart/candle.ts";
 import { Chart } from "../domain/chart/chart.ts";
 import { ChartStyle } from "../domain/chart/chart-style.ts";
 import { DetectSessionBoxes } from "../domain/session/detect-session-boxes.ts";
-import { VoliumSessions } from "../domain/session/volium-sessions.ts";
+import { SessionHours } from "../domain/session/session-hours.ts";
 import { CanvasChartPainter } from "../infrastructure/canvas/canvas-chart.painter.ts";
 import { LuxonSessionClock } from "../infrastructure/time/luxon-session.clock.ts";
 
@@ -59,7 +59,7 @@ async function render(
   candles: Candle[],
   timeframe: ChartTimeframe,
 ): Promise<void> {
-  const boxes = detector.detect(candles, VoliumSessions.all(), timeframe);
+  const boxes = detector.detect(candles, SessionHours.all(), timeframe);
   const chart = Chart.compose(id, title, candles, ChartStyle.default(), timeframe, boxes);
   const image = await painter.paint(chart);
   const file = path.join(outDir, `${id}.png`);
@@ -72,7 +72,7 @@ if (candles.length === 0) {
   throw new Error("Binance вернул 0 свечей за 2026-09-02");
 }
 
-const boxes = detector.detect(candles, VoliumSessions.all(), "5m");
+const boxes = detector.detect(candles, SessionHours.all(), "5m");
 console.log(`свечи ${fmt(candles[0]!.openTime)} … ${fmt(candles[candles.length - 1]!.openTime)} (${candles.length})`);
 console.log("коробки нашего кода (UTC, lastBar = open последней 5m внутри окна, визуальный правый край = lastBar+5m):");
 for (const box of boxes) {

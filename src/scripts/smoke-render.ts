@@ -5,7 +5,7 @@ import { Candle } from "../domain/chart/candle.ts";
 import { Chart } from "../domain/chart/chart.ts";
 import { ChartStyle } from "../domain/chart/chart-style.ts";
 import { DetectSessionBoxes } from "../domain/session/detect-session-boxes.ts";
-import { VoliumSessions } from "../domain/session/volium-sessions.ts";
+import { SessionHours } from "../domain/session/session-hours.ts";
 import { CanvasChartPainter } from "../infrastructure/canvas/canvas-chart.painter.ts";
 import { LuxonSessionClock } from "../infrastructure/time/luxon-session.clock.ts";
 
@@ -37,7 +37,7 @@ for (let i = 0; i < 288; i += 1) {
 
 const boxes = new DetectSessionBoxes(new LuxonSessionClock()).detect(
   candles,
-  VoliumSessions.all(),
+  SessionHours.all(),
   "5m",
 );
 const chart = Chart.compose(

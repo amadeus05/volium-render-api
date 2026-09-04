@@ -5,8 +5,8 @@ import { ChartStyle } from "../../domain/chart/chart-style.ts";
 import { DetectInternalSweeps } from "../../domain/session/detect-internal-sweeps.ts";
 import { DetectLiquiditySweeps } from "../../domain/session/detect-liquidity-sweeps.ts";
 import { DetectSessionBoxes } from "../../domain/session/detect-session-boxes.ts";
-import { VoliumSessions } from "../../domain/session/volium-sessions.ts";
-import { VoliumSweeps } from "../../domain/session/volium-sweeps.ts";
+import { SessionHours } from "../../domain/session/session-hours.ts";
+import { SweepRules } from "../../domain/session/sweep-rules.ts";
 import type { ChartPainterPort, ChartStoragePort } from "../ports/chart.ports.ts";
 
 export class RenderChartUseCase {
@@ -23,11 +23,11 @@ export class RenderChartUseCase {
     const drawSessions = request.layers?.sessions === true;
     const drawSweeps = drawSessions && request.layers?.sweeps === true;
     const boxes = drawSessions
-      ? this.sessions.detect(candles, VoliumSessions.all(), request.timeframe)
+      ? this.sessions.detect(candles, SessionHours.all(), request.timeframe)
       : [];
     const sweeps = drawSweeps
       ? [
-          ...this.sweeps.detect(candles, boxes, VoliumSweeps.default()),
+          ...this.sweeps.detect(candles, boxes, SweepRules.default()),
           ...this.internal.detect(candles, boxes, request.timeframe),
         ]
       : [];

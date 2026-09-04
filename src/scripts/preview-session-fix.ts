@@ -7,8 +7,8 @@ import { Chart } from "../domain/chart/chart.ts";
 import { ChartStyle } from "../domain/chart/chart-style.ts";
 import { DetectLiquiditySweeps } from "../domain/session/detect-liquidity-sweeps.ts";
 import { DetectSessionBoxes } from "../domain/session/detect-session-boxes.ts";
-import { VoliumSessions } from "../domain/session/volium-sessions.ts";
-import { VoliumSweeps } from "../domain/session/volium-sweeps.ts";
+import { SessionHours } from "../domain/session/session-hours.ts";
+import { SweepRules } from "../domain/session/sweep-rules.ts";
 import { CanvasChartPainter } from "../infrastructure/canvas/canvas-chart.painter.ts";
 import { LuxonSessionClock } from "../infrastructure/time/luxon-session.clock.ts";
 
@@ -68,8 +68,8 @@ async function render(
     throw new Error(`${id}: нет свечей`);
   }
 
-  const boxes = detector.detect(candles, VoliumSessions.all(), timeframe);
-  const liquidity = sweeps.detect(candles, boxes, VoliumSweeps.default());
+  const boxes = detector.detect(candles, SessionHours.all(), timeframe);
+  const liquidity = sweeps.detect(candles, boxes, SweepRules.default());
   const chart = Chart.compose(id, title, candles, ChartStyle.default(), timeframe, boxes, liquidity);
   const image = await painter.paint(chart);
   const file = path.join(outDir, `${id}.png`);

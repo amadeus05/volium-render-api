@@ -1,6 +1,6 @@
 import { SessionSpec } from "./session-spec.ts";
 
-export class VoliumSessions {
+export class SessionHours {
   static tokyo(): SessionSpec {
     return SessionSpec.define({
       enabled: true,
@@ -54,10 +54,10 @@ export class VoliumSessions {
   }
 
   static all(): SessionSpec[] {
-    return [VoliumSessions.tokyo(), VoliumSessions.preLondon(), VoliumSessions.london(), VoliumSessions.newYork()];
+    return [SessionHours.tokyo(), SessionHours.preLondon(), SessionHours.london(), SessionHours.newYork()];
   }
 
   static chartBoxes(): SessionSpec[] {
-    return [VoliumSessions.tokyo(), VoliumSessions.london(), VoliumSessions.newYork()];
+    return [SessionHours.tokyo(), SessionHours.london(), SessionHours.newYork()];
   }
 }

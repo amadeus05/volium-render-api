@@ -9,8 +9,8 @@ import { DetectSessionBoxes } from "../src/domain/session/detect-session-boxes.t
 import { SessionSpec } from "../src/domain/session/session-spec.ts";
 import { SweepRoute } from "../src/domain/session/sweep-route.ts";
 import { SweepSide, SweepTouch } from "../src/domain/session/sweep-touch.ts";
-import { VoliumSessions } from "../src/domain/session/volium-sessions.ts";
-import { VoliumSweeps } from "../src/domain/session/volium-sweeps.ts";
+import { SessionHours } from "../src/domain/session/session-hours.ts";
+import { SweepRules } from "../src/domain/session/sweep-rules.ts";
 import { LuxonSessionClock } from "../src/infrastructure/time/luxon-session.clock.ts";
 
 const boxes = new DetectSessionBoxes(new LuxonSessionClock());
@@ -19,7 +19,7 @@ const internal = new DetectInternalSweeps();
 const day = "2026-09-02";
 
 test("1d — коробок нет", () => {
-  assert.deepEqual(boxes.detect(hours(day), VoliumSessions.all(), "1d"), []);
+  assert.deepEqual(boxes.detect(hours(day), SessionHours.all(), "1d"), []);
 });
 
 test("лето: London 07:00–15:00 UTC, хай/лой окна", () => {
@@ -28,7 +28,7 @@ test("лето: London 07:00–15:00 UTC, хай/лой окна", () => {
     bar(`${day}T10:00:00Z`, { high: 78000, low: 77000 }),
     bar(`${day}T15:00:00Z`, { high: 77500, low: 76800 }),
   ];
-  const found = boxes.detect(candles, [VoliumSessions.london()], "1h");
+  const found = boxes.detect(candles, [SessionHours.london()], "1h");
   assert.equal(found.length, 1);
   assert.equal(found[0]?.title, "London");
   assert.equal(found[0]?.firstBarTime, utc(`${day}T07:00:00Z`));
@@ -60,8 +60,8 @@ test("BSL: фитиль Лондона снял хай Tokyo", () => {
   });
   const found = sweeps.detect(
     candles.map((c) => Candle.from(c)),
-    boxes.detect(candles, VoliumSessions.chartBoxes(), "1h"),
-    VoliumSweeps.default(),
+    boxes.detect(candles, SessionHours.chartBoxes(), "1h"),
+    SweepRules.default(),
   );
   assert.equal(found.length, 1);
   assert.equal(found[0]?.fromSession, "Tokyo");
@@ -78,8 +78,8 @@ test("SSL: фитиль Лондона снял лой Tokyo", () => {
   });
   const found = sweeps.detect(
     candles.map((c) => Candle.from(c)),
-    boxes.detect(candles, VoliumSessions.chartBoxes(), "1h"),
-    VoliumSweeps.default(),
+    boxes.detect(candles, SessionHours.chartBoxes(), "1h"),
+    SweepRules.default(),
   );
   assert.equal(found.length, 1);
   assert.equal(found[0]?.side, SweepSide.Low);
@@ -94,7 +94,7 @@ test("только body: фитиль выше хая, тело нет — сн�
   });
   const found = sweeps.detect(
     candles.map((c) => Candle.from(c)),
-    boxes.detect(candles, VoliumSessions.chartBoxes(), "1h"),
+    boxes.detect(candles, SessionHours.chartBoxes(), "1h"),
     [SweepRoute.from("Tokyo").to("London").via(SweepTouch.Body)],
   );
   assert.deepEqual(found, []);
@@ -108,8 +108,8 @@ test("кто первый снял: London, не New York", () => {
   });
   const found = sweeps.detect(
     candles.map((c) => Candle.from(c)),
-    boxes.detect(candles, VoliumSessions.chartBoxes(), "1h"),
-    VoliumSweeps.default(),
+    boxes.detect(candles, SessionHours.chartBoxes(), "1h"),
+    SweepRules.default(),
   );
   assert.equal(found.length, 1);
   assert.equal(found[0]?.toSession, "London");
@@ -123,8 +123,8 @@ test("снятие до закрытия source — не считается", ()
   });
   const found = sweeps.detect(
     candles.map((c) => Candle.from(c)),
-    boxes.detect(candles, VoliumSessions.chartBoxes(), "1h"),
-    VoliumSweeps.default(),
+    boxes.detect(candles, SessionHours.chartBoxes(), "1h"),
+    SweepRules.default(),
   );
   assert.deepEqual(found, []);
 });
@@ -140,7 +140,7 @@ test("внутренняя SSL Азии: ближний лой, потом да�
     "07:00": { high: 79200, low: 78700 },
     "08:00": { high: 79100, low: 77900 },
   });
-  const found = internal.detect(candles, boxes.detect(candles, VoliumSessions.chartBoxes(), "1h"), "1h");
+  const found = internal.detect(candles, boxes.detect(candles, SessionHours.chartBoxes(), "1h"), "1h");
   const ssl = found.filter((item) => item.fromSession === "Tokyo" && item.side === SweepSide.Low);
   assert.equal(ssl.length, 2);
   const near = ssl.find((item) => item.level === 78800);
@@ -162,7 +162,7 @@ test("внутренняя: одна свеча Лондона сняла оба
     "07:00": { high: 79200, low: 78920 },
     "08:00": { high: 79100, low: 77900 },
   });
-  const found = internal.detect(candles, boxes.detect(candles, VoliumSessions.chartBoxes(), "1h"), "1h");
+  const found = internal.detect(candles, boxes.detect(candles, SessionHours.chartBoxes(), "1h"), "1h");
   const ssl = found.filter((item) => item.fromSession === "Tokyo" && item.side === SweepSide.Low);
   assert.equal(ssl.length, 2);
   assert.equal(ssl[0]?.toSession, "London");
@@ -177,7 +177,7 @@ test("Лондон сам себя не снимает", () => {
     "09:00": { high: 80500, low: 79200 },
     "12:00": { high: 79400, low: 77900 },
   });
-  const found = internal.detect(candles, boxes.detect(candles, VoliumSessions.chartBoxes(), "1h"), "1h");
+  const found = internal.detect(candles, boxes.detect(candles, SessionHours.chartBoxes(), "1h"), "1h");
   assert.equal(
     found.some((item) => item.fromSession === "London" && item.toSession === "London"),
     false,
@@ -189,7 +189,7 @@ test("хай Tokyo как сессионный — не внутренний", (
     "02:00": { high: 77902, low: 77000 },
     "07:00": { open: 77600, high: 78175, low: 77500, close: 77700 },
   });
-  const sessionBoxes = boxes.detect(candles, VoliumSessions.chartBoxes(), "1h");
+  const sessionBoxes = boxes.detect(candles, SessionHours.chartBoxes(), "1h");
   const found = internal.detect(candles, sessionBoxes, "1h");
   assert.equal(
     found.some((item) => item.fromSession === "Tokyo" && item.level === 77902),
@@ -204,7 +204,7 @@ test("внутренние свипы только на 1h", () => {
     "12:00": { high: 79400, low: 77900 },
   });
   assert.deepEqual(
-    internal.detect(candles, boxes.detect(candles, VoliumSessions.chartBoxes(), "1h"), "5m"),
+    internal.detect(candles, boxes.detect(candles, SessionHours.chartBoxes(), "1h"), "5m"),
     [],
   );
 });
@@ -220,7 +220,7 @@ test("Лондон снимает внутренний лой Азии — пр�
     "07:00": { high: 79350, low: 78700 },
     "08:00": { high: 79200, low: 78400 },
   });
-  const found = internal.detect(candles, boxes.detect(candles, VoliumSessions.chartBoxes(), "1h"), "1h");
+  const found = internal.detect(candles, boxes.detect(candles, SessionHours.chartBoxes(), "1h"), "1h");
   const take = found.find((item) => item.fromSession === "Tokyo" && item.level === 78500);
   assert.equal(take?.toSession, "London");
   assert.equal(take?.pool, "internal");
@@ -422,11 +422,11 @@ test("внутренние только Tokyo → London", () => {
 });
 
 function internalsOf(candles: Candle[]) {
-  return internal.detect(candles, boxes.detect(candles, VoliumSessions.chartBoxes(), "1h"), "1h");
+  return internal.detect(candles, boxes.detect(candles, SessionHours.chartBoxes(), "1h"), "1h");
 }
 
 function assertLondonIsFirstTake(candles: Candle[]): void {
-  const sessionBoxes = boxes.detect(candles, VoliumSessions.chartBoxes(), "1h");
+  const sessionBoxes = boxes.detect(candles, SessionHours.chartBoxes(), "1h");
   const found = internal.detect(candles, sessionBoxes, "1h");
   for (const sweep of found) {
     assert.equal(sweep.fromSession, "Tokyo");
