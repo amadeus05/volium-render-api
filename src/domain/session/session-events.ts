@@ -4,7 +4,7 @@ import { DetectInternalSweeps } from "./detect-internal-sweeps.ts";
 import { DetectLiquiditySweeps } from "./detect-liquidity-sweeps.ts";
 import { DetectSessionBoxes } from "./detect-session-boxes.ts";
 import { sessionSweepText } from "./liquidity-sweep.ts";
-import type { SessionClock } from "./session-clock.ts";
+import type { SessionClockPort } from "./session-clock.port.ts";
 import { TradeProfile } from "./trade-profile.ts";
 import { SessionHours } from "./session-hours.ts";
 import { SweepRules } from "./sweep-rules.ts";
@@ -17,7 +17,7 @@ export class SessionEvents {
   private readonly sweeps = new DetectLiquiditySweeps();
   private readonly internal = new DetectInternalSweeps();
 
-  constructor(private readonly clock: SessionClock) {
+  constructor(private readonly clock: SessionClockPort) {
     this.boxes = new DetectSessionBoxes(clock);
   }
 

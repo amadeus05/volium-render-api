@@ -1,4 +1,4 @@
-export type { SessionClock, LocalYmd } from "./session-clock.ts";
+export type { SessionClockPort, LocalYmd } from "./session-clock.port.ts";
 export { SessionSpec } from "./session-spec.ts";
 export { SessionBox } from "./session-box.ts";
 export { SessionHours } from "./session-hours.ts";

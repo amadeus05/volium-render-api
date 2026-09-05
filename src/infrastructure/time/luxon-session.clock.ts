@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
-import type { LocalYmd, SessionClock } from "../../domain/session/session-clock.ts";
+import type { LocalYmd, SessionClockPort } from "../../domain/session/session-clock.port.ts";
 
-export class LuxonSessionClock implements SessionClock {
+export class LuxonSessionClock implements SessionClockPort {
   localYmd(utcMs: number, timeZone: string): LocalYmd {
     const dt = DateTime.fromMillis(utcMs, { zone: timeZone });
     return { year: dt.year, month: dt.month, day: dt.day };

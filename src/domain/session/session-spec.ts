@@ -1,5 +1,5 @@
 import { ValueObject } from "@volium/shared-kernel";
-import type { SessionClock } from "./session-clock.ts";
+import type { SessionClockPort } from "./session-clock.port.ts";
 
 type Props = {
   enabled: boolean;
@@ -53,7 +53,7 @@ export class SessionSpec extends ValueObject<Props> {
     return this.props.color;
   }
 
-  bounds(clock: SessionClock, utcMs: number): { start: number; end: number } {
+  bounds(clock: SessionClockPort, utcMs: number): { start: number; end: number } {
     const ymd = clock.localYmd(utcMs, this.timeZone);
     return {
       start: clock.at(

@@ -2,11 +2,11 @@ import { isIntraday } from "@volium/contracts";
 import type { ChartTimeframe } from "@volium/contracts";
 import type { Candle } from "../chart/candle.ts";
 import { SessionBox } from "./session-box.ts";
-import type { SessionClock } from "./session-clock.ts";
+import type { SessionClockPort } from "./session-clock.port.ts";
 import type { SessionSpec } from "./session-spec.ts";
 
 export class DetectSessionBoxes {
-  constructor(private readonly clock: SessionClock) {}
+  constructor(private readonly clock: SessionClockPort) {}
 
   detect(candles: Candle[], specs: SessionSpec[], timeframe: ChartTimeframe): SessionBox[] {
     if (!isIntraday(timeframe) || candles.length === 0) {

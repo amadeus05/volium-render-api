@@ -4,7 +4,7 @@ export type LocalYmd = {
   day: number;
 };
 
-export interface SessionClock {
+export interface SessionClockPort {
   localYmd(utcMs: number, timeZone: string): LocalYmd;
   at(
     timeZone: string,
