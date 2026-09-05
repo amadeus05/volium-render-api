@@ -1,17 +1,17 @@
 import type { ChartTimeframe } from "./timeframe.ts";
 
-export type SessionNoticeKind = "open" | "close" | "liquidity";
+export type SessionEventKind = "open" | "close" | "liquidity";
 
-export type SessionNoticeDto = {
+export type SessionEventDto = {
   id: string;
   text: string;
-  kind: SessionNoticeKind;
+  kind: SessionEventKind;
 };
 
 export type SessionEventsResponse = {
   exchange: string;
   symbol: string;
   timeframe: ChartTimeframe;
-  notices: SessionNoticeDto[];
+  events: SessionEventDto[];
   imageUrl: string | null;
 };

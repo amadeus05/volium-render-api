@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { DateTime } from "luxon";
 import type { CandleDto } from "@volium/contracts";
 import { ListSessionEventsUseCase } from "../src/application/use-cases/list-session-events.use-case.ts";
-import { SessionNotices } from "../src/domain/session/session-notices.ts";
+import { SessionEvents } from "../src/domain/session/session-events.ts";
 import { parseEventsQuery } from "../src/infrastructure/market-data/parse-events-query.ts";
 import { LuxonSessionClock } from "../src/infrastructure/time/luxon-session.clock.ts";
 
@@ -40,7 +40,7 @@ test("query: мусорный now — ошибка", () => {
 test("открытие без снятия — imageUrl нет, PNG не рисуем", async () => {
   let paints = 0;
   const payload = await new ListSessionEventsUseCase(
-    new SessionNotices(new LuxonSessionClock()),
+    new SessionEvents(new LuxonSessionClock()),
     {
       execute: async () => {
         paints += 1;
@@ -57,7 +57,7 @@ test("открытие без снятия — imageUrl нет, PNG не рис�
   });
 
   assert.equal(payload.imageUrl, null);
-  assert.equal(payload.notices.some((item) => item.kind === "open"), true);
+  assert.equal(payload.events.some((item) => item.kind === "open"), true);
   assert.equal(paints, 0);
   assert.equal("candles" in payload, false);
 });
@@ -69,7 +69,7 @@ test("снятие — сразу PNG в ответе, свечи воркеру
   });
   let seen = 0;
   const payload = await new ListSessionEventsUseCase(
-    new SessionNotices(new LuxonSessionClock()),
+    new SessionEvents(new LuxonSessionClock()),
     {
       execute: async (request) => {
         seen += 1;
@@ -89,16 +89,16 @@ test("снятие — сразу PNG в ответе, свечи воркеру
 
   assert.equal(seen, 1);
   assert.equal(payload.imageUrl, "https://img/1h.png");
-  assert.equal(payload.notices.some((item) => item.kind === "liquidity"), true);
+  assert.equal(payload.events.some((item) => item.kind === "liquidity"), true);
 });
 
-test("PNG не собрался — notices всё равно в ответе, imageUrl null", async () => {
+test("PNG не собрался — events всё равно в ответе, imageUrl null", async () => {
   const candles = hours("2026-09-03", {
     "02:00": { high: 77902, low: 77000 },
     "07:00": { open: 77600, high: 78175, low: 77500, close: 77700 },
   });
   const payload = await new ListSessionEventsUseCase(
-    new SessionNotices(new LuxonSessionClock()),
+    new SessionEvents(new LuxonSessionClock()),
     {
       execute: async () => {
         throw new Error("paint failed");
@@ -114,7 +114,7 @@ test("PNG не собрался — notices всё равно в ответе, i
   });
 
   assert.equal(payload.imageUrl, null);
-  assert.equal(payload.notices.some((item) => item.kind === "liquidity"), true);
+  assert.equal(payload.events.some((item) => item.kind === "liquidity"), true);
 });
 
 function hours(day: string, overlay: Record<string, Partial<CandleDto>> = {}): CandleDto[] {

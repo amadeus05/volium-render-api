@@ -5,7 +5,7 @@ import { LocalChartStorage } from "../infrastructure/storage/local-chart.storage
 import { LuxonSessionClock } from "../infrastructure/time/luxon-session.clock.ts";
 import { DetectLiquiditySweeps } from "../domain/session/detect-liquidity-sweeps.ts";
 import { DetectSessionBoxes } from "../domain/session/detect-session-boxes.ts";
-import { SessionNotices } from "../domain/session/session-notices.ts";
+import { SessionEvents } from "../domain/session/session-events.ts";
 import { RenderChartUseCase } from "../application/use-cases/render-chart.use-case.ts";
 import { ListSessionEventsUseCase } from "../application/use-cases/list-session-events.use-case.ts";
 import { RenderChartController } from "../presentation/http/render-chart.controller.ts";
@@ -35,7 +35,7 @@ export class RendererCompositionRoot {
     this.klines = new KlinesController(secret);
     this.events = new EventsController(
       secret,
-      new ListSessionEventsUseCase(new SessionNotices(clock), useCase, (exchange, symbol, timeframe, limit) =>
+      new ListSessionEventsUseCase(new SessionEvents(clock), useCase, (exchange, symbol, timeframe, limit) =>
         klineFeed(exchange).load(symbol, timeframe, limit),
       ),
     );

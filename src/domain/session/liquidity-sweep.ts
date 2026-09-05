@@ -14,7 +14,7 @@ export class LiquiditySweep {
   ) {}
 }
 
-export function sessionSweepNotice(sweep: LiquiditySweep): string {
+export function sessionSweepText(sweep: LiquiditySweep): string {
   const kind = sweep.side === "high" ? "BSL" : "SSL";
   const edge = sweep.side === "high" ? "хай" : "лой";
   const when = new Date(sweep.sweepBarTime).toISOString().slice(0, 16);

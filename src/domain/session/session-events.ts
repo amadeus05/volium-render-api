@@ -1,9 +1,9 @@
-import type { CandleDto, ChartTimeframe, SessionNoticeDto } from "@volium/contracts";
+import type { CandleDto, ChartTimeframe, SessionEventDto } from "@volium/contracts";
 import { Candle } from "../chart/candle.ts";
 import { DetectInternalSweeps } from "./detect-internal-sweeps.ts";
 import { DetectLiquiditySweeps } from "./detect-liquidity-sweeps.ts";
 import { DetectSessionBoxes } from "./detect-session-boxes.ts";
-import { sessionSweepNotice } from "./liquidity-sweep.ts";
+import { sessionSweepText } from "./liquidity-sweep.ts";
 import type { SessionClock } from "./session-clock.ts";
 import { TradeProfile } from "./trade-profile.ts";
 import { SessionHours } from "./session-hours.ts";
@@ -12,7 +12,7 @@ import { SweepRules } from "./sweep-rules.ts";
 export const SESSION_CLOSE_GRACE_MS = 6 * 60 * 60 * 1000;
 export const SESSION_SWEEP_LOOKBACK_MS = SESSION_CLOSE_GRACE_MS;
 
-export class SessionNotices {
+export class SessionEvents {
   private readonly boxes: DetectSessionBoxes;
   private readonly sweeps = new DetectLiquiditySweeps();
   private readonly internal = new DetectInternalSweeps();
@@ -26,23 +26,23 @@ export class SessionNotices {
     hourly: CandleDto[],
     nowUtcMs: number,
     timeframe: ChartTimeframe = "1h",
-  ): SessionNoticeDto[] {
-    const notices: SessionNoticeDto[] = [];
+  ): SessionEventDto[] {
+    const events: SessionEventDto[] = [];
     const profile = TradeProfile.for(symbol);
     if (profile == null) {
-      return notices;
+      return events;
     }
 
     for (const window of profile.sessionWindows) {
       const { start, end } = window.bounds(this.clock, nowUtcMs);
       if (nowUtcMs >= start && nowUtcMs < end) {
-        notices.push({
+        events.push({
           id: `session-open:${symbol}:${window.title}:${start}`,
           text: `${window.title} открылась`,
           kind: "open",
         });
       } else if (nowUtcMs >= end && nowUtcMs < end + SESSION_CLOSE_GRACE_MS) {
-        notices.push({
+        events.push({
           id: `session-close:${symbol}:${window.title}:${start}`,
           text: `${window.title} закрылась`,
           kind: "close",
@@ -61,16 +61,16 @@ export class SessionNotices {
       if (sweep.sweepBarTime <= since) {
         continue;
       }
-      notices.push({
+      events.push({
         id:
           sweep.pool === "internal"
             ? `session-liquidity:internal:${symbol}:${sweep.fromBarTime}:${sweep.side}`
             : `session-liquidity:${symbol}:${sweep.fromBarTime}:${sweep.side}`,
-        text: sessionSweepNotice(sweep),
+        text: sessionSweepText(sweep),
         kind: "liquidity",
       });
     }
 
-    return notices;
+    return events;
   }
 }

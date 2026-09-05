@@ -1,5 +1,5 @@
 import type { CandleDto, SessionEventsResponse } from "@volium/contracts";
-import type { SessionNotices } from "../../domain/session/session-notices.ts";
+import type { SessionEvents } from "../../domain/session/session-events.ts";
 import type { RenderChartUseCase } from "./render-chart.use-case.ts";
 import type { EventsQuery } from "../../infrastructure/market-data/parse-events-query.ts";
 
@@ -12,15 +12,15 @@ export type LoadKlines = (
 
 export class ListSessionEventsUseCase {
   constructor(
-    private readonly notices: SessionNotices,
+    private readonly sessionEvents: SessionEvents,
     private readonly render: Pick<RenderChartUseCase, "execute">,
     private readonly loadKlines: LoadKlines,
   ) {}
 
   async execute(query: EventsQuery): Promise<SessionEventsResponse> {
     const candles = await this.loadKlines(query.exchange, query.symbol, query.timeframe, query.limit);
-    const notices = this.notices.list(query.symbol, candles, query.now, query.timeframe);
-    const imageUrl = notices.some((notice) => notice.kind === "liquidity")
+    const events = this.sessionEvents.list(query.symbol, candles, query.now, query.timeframe);
+    const imageUrl = events.some((event) => event.kind === "liquidity")
       ? await this.sweepChart(query.symbol, query.timeframe, candles)
       : null;
 
@@ -28,7 +28,7 @@ export class ListSessionEventsUseCase {
       exchange: query.exchange,
       symbol: query.symbol,
       timeframe: query.timeframe,
-      notices,
+      events,
       imageUrl,
     };
   }
