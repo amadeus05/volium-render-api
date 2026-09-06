@@ -4,9 +4,11 @@ import type { SessionBox } from "./session-box.ts";
 import { LiquiditySweep } from "./liquidity-sweep.ts";
 import { SweepSide } from "./sweep-touch.ts";
 
+const INTERNAL_TIMEFRAMES = new Set<ChartTimeframe>(["1h", "5m"]);
+
 export class DetectInternalSweeps {
   detect(candles: Candle[], boxes: SessionBox[], timeframe: ChartTimeframe): LiquiditySweep[] {
-    if (timeframe !== "1h" || candles.length < 3 || boxes.length === 0) {
+    if (!INTERNAL_TIMEFRAMES.has(timeframe) || candles.length < 3 || boxes.length === 0) {
       return [];
     }
 

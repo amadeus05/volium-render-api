@@ -112,7 +112,7 @@ export class CanvasChartPainter implements ChartPainterPort {
     chart: Chart,
     snap: (value: number) => number,
   ): void {
-    for (const sweep of sessionPoolSweeps(chart.liquiditySweeps)) {
+    for (const sweep of sessionPoolSweeps(chart.liquiditySweeps, chart.series.at(-1)?.openTime)) {
       const x1 = snap(layout.barCenter(sweep.fromBarTime));
       const x2 = snap(layout.barCenter(sweep.sweepBarTime));
       const y = snap(layout.yAt(sweep.level));

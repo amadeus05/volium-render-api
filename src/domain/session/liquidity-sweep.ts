@@ -14,9 +14,34 @@ export class LiquiditySweep {
   ) {}
 }
 
-/** На графике: хай коробки = один BSL, лой = один SSL. Внутренние качели не подписываем. */
-export function sessionPoolSweeps(sweeps: LiquiditySweep[]): LiquiditySweep[] {
-  return sweeps.filter((sweep) => sweep.pool === "session");
+/**
+ * На графике: сессионный пул всегда (хай/лой коробки).
+ * Внутреннюю качель — только если сняла текущая свеча.
+ * На сессию не больше одной стрелки сверху и одной снизу: самый высокий BSL / самый низкий SSL.
+ */
+export function sessionPoolSweeps(sweeps: LiquiditySweep[], lastBarTime?: number): LiquiditySweep[] {
+  const visible = sweeps.filter((sweep) => {
+    if (sweep.pool === "session") {
+      return true;
+    }
+    return lastBarTime != null && sweep.sweepBarTime === lastBarTime;
+  });
+
+  const extreme = new Map<string, LiquiditySweep>();
+  for (const sweep of visible) {
+    const key = `${sweep.fromSession}:${sweep.side}`;
+    const current = extreme.get(key);
+    if (current == null || moreExtreme(sweep, current)) {
+      extreme.set(key, sweep);
+    }
+  }
+
+  const keep = new Set(extreme.values());
+  return visible.filter((sweep) => keep.has(sweep));
+}
+
+function moreExtreme(candidate: LiquiditySweep, current: LiquiditySweep): boolean {
+  return candidate.side === "high" ? candidate.level > current.level : candidate.level < current.level;
 }
 
 export function sessionSweepText(sweep: LiquiditySweep): string {

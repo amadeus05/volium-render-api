@@ -198,15 +198,17 @@ test("хай Tokyo как сессионный — не внутренний", (
   );
 });
 
-test("внутренние свипы только на 1h", () => {
+test("внутренние свипы только на 1h и 5m", () => {
   const candles = hours(day, {
     "08:00": { high: 79900, low: 78000 },
     "10:00": { high: 80400, low: 78800 },
     "12:00": { high: 79400, low: 77900 },
   });
+  const sessionBoxes = boxes.detect(candles, SessionHours.chartBoxes(), "1h");
+  assert.deepEqual(internal.detect(candles, sessionBoxes, "15m"), []);
   assert.deepEqual(
-    internal.detect(candles, boxes.detect(candles, SessionHours.chartBoxes(), "1h"), "5m"),
-    [],
+    internal.detect(candles, sessionBoxes, "5m"),
+    internal.detect(candles, sessionBoxes, "1h"),
   );
 });
 
@@ -433,7 +435,9 @@ function assertLondonIsFirstTake(candles: Candle[]): void {
     assert.equal(sweep.fromSession, "Tokyo");
     assert.equal(sweep.toSession, "London");
     const take = candles.find((candle) => candle.openTime === sweep.sweepBarTime);
-    assert.ok(take);
+    if (take == null) {
+      throw new Error("нет свечи снятия");
+    }
     const takeHits =
       sweep.side === SweepSide.High ? take.high > sweep.level : take.low < sweep.level;
     assert.equal(takeHits, true);
@@ -485,8 +489,34 @@ function utc(iso: string): number {
   return DateTime.fromISO(iso, { zone: "utc" }).toMillis();
 }
 
-test("на график только сессионный пул: внутренние качели Токио не подписываем", () => {
+test("на график: старые внутренние скрыты, снятие на текущей свече видно", () => {
   const session = new LiquiditySweep("Tokyo", "London", SweepSide.Low, 77000, 1, 2, "session");
-  const inner = new LiquiditySweep("Tokyo", "London", SweepSide.Low, 77100, 1, 2, "internal");
-  assert.deepEqual(sessionPoolSweeps([session, inner]), [session]);
+  const oldInner = new LiquiditySweep("Tokyo", "London", SweepSide.Low, 77100, 1, 2, "internal");
+  const liveInner = new LiquiditySweep("Tokyo", "London", SweepSide.Low, 77200, 1, 9, "internal");
+  assert.deepEqual(sessionPoolSweeps([session, oldInner, liveInner]), [session]);
+  assert.deepEqual(sessionPoolSweeps([oldInner, liveInner], 9), [liveInner]);
+});
+
+test("на график: одна свеча сняла несколько лоев — только самый нижний", () => {
+  const near = new LiquiditySweep("Tokyo", "London", SweepSide.Low, 80000, 1, 9, "internal");
+  const mid = new LiquiditySweep("Tokyo", "London", SweepSide.Low, 79900, 2, 9, "internal");
+  const far = new LiquiditySweep("Tokyo", "London", SweepSide.Low, 79800, 3, 9, "internal");
+  assert.deepEqual(sessionPoolSweeps([near, mid, far], 9), [far]);
+});
+
+test("на график: одна свеча сняла несколько хаев — только самый верхний", () => {
+  const near = new LiquiditySweep("Tokyo", "London", SweepSide.High, 80100, 1, 9, "internal");
+  const far = new LiquiditySweep("Tokyo", "London", SweepSide.High, 80200, 2, 9, "internal");
+  assert.deepEqual(sessionPoolSweeps([near, far], 9), [far]);
+});
+
+test("на график: сессия — не больше одного BSL и одного SSL", () => {
+  const sessionSsl = new LiquiditySweep("Tokyo", "London", SweepSide.Low, 77000, 1, 2, "session");
+  const sessionBsl = new LiquiditySweep("Tokyo", "London", SweepSide.High, 78000, 3, 4, "session");
+  const innerSsl = new LiquiditySweep("Tokyo", "London", SweepSide.Low, 77200, 5, 9, "internal");
+  const innerBsl = new LiquiditySweep("Tokyo", "London", SweepSide.High, 77800, 6, 9, "internal");
+  assert.deepEqual(sessionPoolSweeps([sessionSsl, sessionBsl, innerSsl, innerBsl], 9), [
+    sessionSsl,
+    sessionBsl,
+  ]);
 });
