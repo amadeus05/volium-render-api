@@ -5,7 +5,7 @@ export { SessionHours } from "./session-hours.ts";
 export { DetectSessionBoxes } from "./detect-session-boxes.ts";
 export { SweepRoute } from "./sweep-route.ts";
 export { SweepTouch, SweepSide } from "./sweep-touch.ts";
-export { LiquiditySweep, sessionSweepText } from "./liquidity-sweep.ts";
+export { LiquiditySweep, sessionPoolSweeps, sessionSweepText } from "./liquidity-sweep.ts";
 export { SweepRules } from "./sweep-rules.ts";
 export { DetectLiquiditySweeps } from "./detect-liquidity-sweeps.ts";
 export { DetectInternalSweeps } from "./detect-internal-sweeps.ts";

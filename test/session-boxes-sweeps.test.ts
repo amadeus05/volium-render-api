@@ -10,6 +10,7 @@ import { SessionSpec } from "../src/domain/session/session-spec.ts";
 import { SweepRoute } from "../src/domain/session/sweep-route.ts";
 import { SweepSide, SweepTouch } from "../src/domain/session/sweep-touch.ts";
 import { SessionHours } from "../src/domain/session/session-hours.ts";
+import { LiquiditySweep, sessionPoolSweeps } from "../src/domain/session/liquidity-sweep.ts";
 import { SweepRules } from "../src/domain/session/sweep-rules.ts";
 import { LuxonSessionClock } from "../src/infrastructure/time/luxon-session.clock.ts";
 
@@ -483,3 +484,9 @@ function hours(date: string, overlay: Record<string, Partial<CandleDto>> = {}): 
 function utc(iso: string): number {
   return DateTime.fromISO(iso, { zone: "utc" }).toMillis();
 }
+
+test("на график только сессионный пул: внутренние качели Токио не подписываем", () => {
+  const session = new LiquiditySweep("Tokyo", "London", SweepSide.Low, 77000, 1, 2, "session");
+  const inner = new LiquiditySweep("Tokyo", "London", SweepSide.Low, 77100, 1, 2, "internal");
+  assert.deepEqual(sessionPoolSweeps([session, inner]), [session]);
+});

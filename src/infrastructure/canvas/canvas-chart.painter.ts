@@ -3,6 +3,7 @@ import { createCanvas, GlobalFonts, type SKRSContext2D } from "@napi-rs/canvas";
 import type { ChartPainterPort, RenderedChart } from "../../application/ports/chart.ports.ts";
 import type { Chart } from "../../domain/chart/chart.ts";
 import type { Candle } from "../../domain/chart/candle.ts";
+import { sessionPoolSweeps } from "../../domain/session/liquidity-sweep.ts";
 import { ChartLayout } from "./chart-layout.ts";
 
 const UP = "#089981";
@@ -93,14 +94,15 @@ export class CanvasChartPainter implements ChartPainterPort {
       ctx.fillRect(x1, y1, w, h);
       ctx.globalAlpha = 1;
 
-      if (w < 56) {
+      const label = sessionBoxLabel(ctx, box.title, w);
+      if (label == null) {
         continue;
       }
 
       ctx.fillStyle = box.color;
       ctx.textAlign = "left";
       ctx.textBaseline = "bottom";
-      ctx.fillText(box.title, x1 + 4, Math.max(layout.plotY + 16, y1 - 6));
+      ctx.fillText(label, x1 + 4, Math.max(layout.plotY + 16, y1 - 6));
     }
   }
 
@@ -110,7 +112,7 @@ export class CanvasChartPainter implements ChartPainterPort {
     chart: Chart,
     snap: (value: number) => number,
   ): void {
-    for (const sweep of chart.liquiditySweeps) {
+    for (const sweep of sessionPoolSweeps(chart.liquiditySweeps)) {
       const x1 = snap(layout.barCenter(sweep.fromBarTime));
       const x2 = snap(layout.barCenter(sweep.sweepBarTime));
       const y = snap(layout.yAt(sweep.level));
@@ -267,6 +269,19 @@ function fillDeviceRect(
 
 function createSnap(pixelRatio: number): (value: number) => number {
   return (value: number) => Math.round(value * pixelRatio) / pixelRatio;
+}
+
+function sessionBoxLabel(ctx: SKRSContext2D, title: string, boxWidth: number): string | null {
+  const pad = 8;
+  const short =
+    title === "New York" ? "NY" : title === "pre-London" ? "pre-L" : title;
+  if (ctx.measureText(title).width + pad <= boxWidth) {
+    return title;
+  }
+  if (ctx.measureText(short).width + pad <= boxWidth || boxWidth >= 20) {
+    return short;
+  }
+  return null;
 }
 
 function registerChartFont(): string {

@@ -14,6 +14,11 @@ export class LiquiditySweep {
   ) {}
 }
 
+/** На графике: хай коробки = один BSL, лой = один SSL. Внутренние качели не подписываем. */
+export function sessionPoolSweeps(sweeps: LiquiditySweep[]): LiquiditySweep[] {
+  return sweeps.filter((sweep) => sweep.pool === "session");
+}
+
 export function sessionSweepText(sweep: LiquiditySweep): string {
   const kind = sweep.side === "high" ? "BSL" : "SSL";
   const edge = sweep.side === "high" ? "хай" : "лой";
