@@ -11,7 +11,7 @@ const DOWN = "#f23645";
 const GRID = "#d8dbe3";
 const AXIS = "#6a6d78";
 const TEXT = "#131722";
-const SESSION_FILL_ALPHA = 0.16;
+const SESSION_FILL_ALPHA = 0.22;
 const FONT = registerChartFont();
 
 export class CanvasChartPainter implements ChartPainterPort {

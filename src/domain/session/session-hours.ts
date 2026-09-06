@@ -10,7 +10,7 @@ export class SessionHours {
       startMinute: 0,
       endHour: 16,
       endMinute: 0,
-      color: "#c9a0ff",
+      color: "#b39ddb",
     });
   }
 
@@ -23,7 +23,7 @@ export class SessionHours {
       startMinute: 0,
       endHour: 9,
       endMinute: 0,
-      color: "#f0a070",
+      color: "#ef9a9a",
     });
   }
 
@@ -36,7 +36,7 @@ export class SessionHours {
       startMinute: 0,
       endHour: 16,
       endMinute: 30,
-      color: "#7dcc90",
+      color: "#81c784",
     });
   }
 
@@ -49,7 +49,7 @@ export class SessionHours {
       startMinute: 30,
       endHour: 16,
       endMinute: 0,
-      color: "#7eb6e8",
+      color: "#64b5f6",
     });
   }
 
